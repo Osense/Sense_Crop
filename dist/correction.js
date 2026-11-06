@@ -1,6 +1,6 @@
 let correctionMode='',correctionLines=[],correctionStroke=null,correctionBusy=false,correctionSourceId=0,correctionSequence=0;
 const correctionSources=new Map(),correctionPanel=document.createElement('div');
-correctionPanel.className='correction-panel';correctionPanel.innerHTML=`<div class="correction-buttons"><button id="straightenOne" aria-pressed="false">선 1개로 수평 맞추기</button><button id="straightenFour" aria-pressed="false">선 4개로 원근 보정</button><button id="correctionApply" class="dark" disabled>자동 보정</button><button id="correctionClear" hidden>선 지우기</button><button id="correctionCancel" hidden>보정 취소</button><button id="correctionRestore" hidden>원본 복원</button></div><p id="correctionStatus" role="status">기준선을 드래그해 스캔 기울기나 원근을 보정할 수 있어요.</p><div id="correctionLineList"></div>`;
+correctionPanel.className='correction-panel';correctionPanel.innerHTML=`<div class="correction-buttons"><button id="straightenOne" aria-pressed="false">선 1개로 수평 맞추기</button><button id="straightenFour" aria-pressed="false">선 4개로 원근 보정</button><button id="correctionApply" class="dark" disabled>보정 시작</button><button id="correctionClear" hidden>선 지우기</button><button id="correctionCancel" hidden>보정 취소</button><button id="correctionRestore" hidden>원본 복원</button></div><p id="correctionStatus" role="status">기준선을 드래그해 스캔 기울기나 원근을 보정할 수 있어요.</p><div id="correctionLineList"></div>`;
 rotateBar.after(correctionPanel);
 const correctionSVG=document.createElementNS('http://www.w3.org/2000/svg','svg');correctionSVG.id='correctionOverlay';correctionSVG.setAttribute('aria-hidden','true');$('stage').append(correctionSVG);
 function correctionDrawingActive(){return Boolean(correctionMode)&&!correctionBusy}
@@ -11,7 +11,7 @@ function correctionMessage(){
   $('correctionApply').disabled=correctionMode==='one'?correctionLines.length!==1:correctionMode==='four'?h!==2||v!==2:true;
   $('correctionClear').hidden=!correctionMode;$('correctionCancel').hidden=!correctionMode;$('correctionRestore').hidden=!correctionSourceId;
   $('viewport').classList.toggle('correction-drawing',Boolean(correctionMode));
-  $('correctionStatus').textContent=!correctionMode?'기준선을 드래그해 스캔 기울기나 원근을 보정할 수 있어요.':correctionMode==='one'?(correctionLines.length?'기준선이 준비됐어요. 끝점을 옮겨 미세 조절한 뒤 ‘자동 보정’을 누르세요.':'수평 또는 수직이어야 할 테두리를 길게 드래그하세요. 방향은 자동으로 인식합니다.'):`가로 ${h}/2 · 세로 ${v}/2 — 학습지의 위·아래·왼쪽·오른쪽 테두리를 순서와 관계없이 그으세요. 네 선을 그린 뒤 끝점을 드래그로 조절할 수 있어요.`;
+  $('correctionStatus').textContent=!correctionMode?'기준선을 드래그해 스캔 기울기나 원근을 보정할 수 있어요.':correctionMode==='one'?(correctionLines.length?'기준선이 준비됐어요. 끝점을 옮겨 미세 조절한 뒤 ‘보정 시작’을 누르세요.':'수평 또는 수직이어야 할 테두리를 길게 드래그하세요. 방향은 자동으로 인식합니다.'):`가로 ${h}/2 · 세로 ${v}/2 — 학습지의 위·아래·왼쪽·오른쪽 테두리를 순서와 관계없이 그으세요. 네 선을 그린 뒤 끝점을 드래그로 조절할 수 있어요.`;
   $('correctionLineList').hidden=!correctionMode;$('correctionLineList').replaceChildren();correctionLines.forEach((line,i)=>{const btn=document.createElement('button');btn.textContent=(CorrectionMath.axis(line)==='h'?'가로':'세로')+' '+(i+1)+' ×';btn.title='이 기준선 삭제';btn.onclick=()=>{correctionLines.splice(i,1);correctionMessage();drawCorrectionOverlay()};$('correctionLineList').append(btn)});
 }
 function drawCorrectionOverlay(){
@@ -33,7 +33,7 @@ $('viewport').addEventListener('pointerdown',e=>{
   e.preventDefault();e.stopImmediatePropagation();const p=correctionPoint(e);let handle=null;
   if(correctionMode==='one'||correctionLines.length===4)for(let i=0;i<correctionLines.length;i++)for(const end of ['a','b'])if(CorrectionMath.distance(p,correctionLines[i][end])*scale<=12)handle={i,end};
   if(handle){const line=correctionLines[handle.i];correctionStroke={id:e.pointerId,index:handle.i,end:handle.end,original:{a:{...line.a},b:{...line.b}}}}
-  else{if(correctionMode==='four'&&correctionLines.length===4)return toast('네 선이 준비됐어요. 끝점을 조절하거나 ‘자동 보정’을 눌러 주세요.');correctionStroke={id:e.pointerId,a:p,b:{...p}}}
+  else{if(correctionMode==='four'&&correctionLines.length===4)return toast('네 선이 준비됐어요. 끝점을 조절하거나 ‘보정 시작’을 눌러 주세요.');correctionStroke={id:e.pointerId,a:p,b:{...p}}}
   $('viewport').setPointerCapture(e.pointerId);e.preventDefault();e.stopImmediatePropagation();drawCorrectionOverlay();
 },true);
 $('viewport').addEventListener('pointermove',e=>{if(!correctionStroke||e.pointerId!==correctionStroke.id)return;const p=correctionPoint(e);if(correctionStroke.index!=null)correctionLines[correctionStroke.index][correctionStroke.end]=p;else correctionStroke.b=p;e.preventDefault();e.stopImmediatePropagation();drawCorrectionOverlay()},true);

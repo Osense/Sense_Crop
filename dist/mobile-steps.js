@@ -26,7 +26,13 @@
   const hints = ['이미지를 불러오고 기울기를 맞춰 주세요.', '가로·세로선을 그림의 중심에 맞춰 주세요.', '교점마다 만들어진 영역의 크기와 비율을 확인하세요.', '배율과 파일 형식을 정한 뒤 결과를 저장하세요.'];
   const heading = document.createElement('div');
   heading.className = 'mobile-step-heading';
-  heading.innerHTML = '<div><small id="mobileStepCount"></small><h1 id="mobileStepTitle" tabindex="-1"></h1><p id="mobileStepHint"></p></div><div class="mobile-step-actions"><button id="mobilePrevious">이전</button><button id="mobileNext" class="dark">다음</button></div>';
+  heading.innerHTML = '<div><small id="mobileStepCount"></small><h1 id="mobileStepTitle" tabindex="-1"></h1><p id="mobileStepHint"></p></div>';
+  const previousButton=document.createElement('button');
+  previousButton.id='mobilePrevious';previousButton.className='mobile-header-action';previousButton.textContent='‹ 이전';
+  const nextButton=document.createElement('button');
+  nextButton.id='mobileNext';nextButton.className='mobile-header-action dark';nextButton.textContent='다음 ›';
+  const header=document.querySelector('header');
+  header.prepend(previousButton);header.append(nextButton);
   document.querySelector('.layout').before(heading);
   const tabs = document.createElement('nav');
   tabs.className = 'mobile-step-tabs';
@@ -83,7 +89,7 @@
     $('mobileStepTitle').textContent = titles[step - 1];
     $('mobileStepHint').textContent = hints[step - 1];
     $('mobilePrevious').disabled = step === 1;
-    $('mobileNext').hidden = step === 4;
+    $('mobileNext').disabled = step === 4 || !img;
     [...tabs.children].forEach((button, i) => {
       if (i + 1 === step) button.setAttribute('aria-current', 'step');
       else button.removeAttribute('aria-current');
@@ -100,5 +106,18 @@
   $('mobilePrevious').onclick = () => selectStep(Math.max(1, current - 1), true);
   $('mobileNext').onclick = () => selectStep(Math.min(4, current + 1), true);
   mobile.addEventListener('change', () => selectStep(current));
+  let hadImage=false;
+  function updateImageEntry(){
+    const hasImage=Boolean(img);
+    document.body.classList.toggle('has-image',hasImage);
+    $('mobileNext').disabled=current===4||!hasImage;
+    if(hasImage!==hadImage){
+      hadImage=hasImage;
+      if(hasImage&&mobile.matches)requestAnimationFrame(()=>fit());
+    }
+  }
+  const renderBeforeEntry=render;
+  render=function(...args){updateImageEntry();return renderBeforeEntry(...args)};
+  updateImageEntry();
   selectStep(1);
 })();

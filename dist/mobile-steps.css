@@ -1,14 +1,23 @@
-.mobile-step-heading,.mobile-step-tabs,.mobile-guide-tools,.mobile-guide-details{display:none}
+.mobile-step-heading,.mobile-step-tabs,.mobile-guide-tools,.mobile-guide-details,.mobile-header-action{display:none}
 @media(max-width:720px){
   body{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
-  header{height:42px;padding:0 12px}.brand{font-size:15px;gap:6px}.brand b{font-size:18px;padding:1px 5px;border-radius:5px}header button{font-size:11px;padding:6px}
+  header{height:42px;padding:0 10px;display:grid;grid-template-columns:64px 1fr 64px;gap:4px}.brand{font-size:15px;gap:6px;justify-self:center}.brand b{font-size:18px;padding:1px 5px;border-radius:5px}header #help,header .privacy{display:none}.mobile-header-action{display:block;margin:0!important;min-height:32px;padding:6px 8px;font-size:11px;border:1px solid #dce2df}
+  .mobile-header-action:disabled{cursor:default}
   main{padding:8px 10px 0}.intro{margin-bottom:8px}.intro h1,.intro p,.intro .eyebrow{display:none}.intro button{margin:0;width:100%;padding:8px;min-height:36px}
   body:not([data-mobile-step="1"]) .intro{display:none}
-  .mobile-step-heading{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px}
+  .mobile-step-heading{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:6px}
   .mobile-step-heading>div:first-child{display:flex;align-items:center;gap:6px;min-width:0}
   .mobile-step-heading small{color:#61816a;font-weight:bold;font-size:10px;white-space:nowrap}.mobile-step-heading h1{font-size:14px;margin:0;outline:none;letter-spacing:-.5px}.mobile-step-heading p{display:none}
   .mobile-step-actions{display:flex;gap:4px;flex-shrink:0}.mobile-step-actions button{min-height:36px;min-width:0;padding:7px 9px;font-size:11px}
-  .layout{gap:12px}.section{padding:16px}.section h2{margin-bottom:12px}
+  .layout{gap:8px}.section{padding:10px 12px}.section h2{margin-bottom:8px}
+  label{margin-bottom:8px}input,select{margin-top:4px;padding:7px 8px}button{padding:7px 10px}.pair{gap:8px}.divider{margin:10px 0}.hint{margin:6px 0 8px;line-height:1.5}
+  body[data-mobile-step="1"] aside{order:-2}
+  body:not(.has-image)[data-mobile-step="1"] .workspace{display:none}
+  body[data-mobile-step="1"] aside .section h2{display:none}
+  body:not(.has-image) .upload{margin:0;padding:28px 12px}.upload b,.upload span,.upload small{margin-top:5px}
+  body.has-image .upload{display:flex;align-items:center;justify-content:center;gap:8px;padding:6px;margin-bottom:4px}
+  body.has-image .upload strong{font-size:20px}body.has-image .upload b{margin:0}body.has-image .upload span,body.has-image .upload small{display:none}
+  .correction-panel{padding:6px 8px}.correction-buttons{gap:4px}.correction-buttons button{padding:6px 8px;min-height:34px;font-size:10px}.correction-panel p{margin-top:5px;line-height:1.4;font-size:10px}#correctionLineList{min-height:0}.canvas-rotation{padding:6px 8px;gap:4px}.canvas-rotation label{width:auto}.canvas-rotation button{padding:6px 8px;min-height:32px}.canvas-rotation input[type=number]{padding:6px;width:66px}.canvas-rotation input[type=range]{height:24px;min-height:0;flex-basis:100%}
   body[data-mobile-step="1"] [data-mobile-steps]:not([data-mobile-steps~="1"]),
   body[data-mobile-step="2"] [data-mobile-steps]:not([data-mobile-steps~="2"]),
   body[data-mobile-step="3"] [data-mobile-steps]:not([data-mobile-steps~="3"]),
@@ -23,7 +32,7 @@
   .mobile-guide-details{display:block}.mobile-guide-details summary{cursor:pointer;color:#52745d;padding:8px 0;font-size:11px;min-height:36px}.mobile-guide-details[open] summary{margin-bottom:8px}.mobile-guide-details #guidePositions{max-height:180px}
   body[data-mobile-step="2"] #guideControls>.hint{display:none}
   body[data-mobile-step="2"] aside .section{padding:8px 12px}
-  .editorfoot{padding:10px;font-size:10px}
+  .editorfoot{padding:6px 8px;font-size:10px}
   body[data-mobile-step="1"] #guideLayer,body[data-mobile-step="1"] #boxes{visibility:hidden}
   body[data-mobile-step="2"] .box{border-color:transparent;background:transparent}body[data-mobile-step="2"] .box .num{display:none}
   body[data-mobile-step="3"] #guideLayer{pointer-events:none}body[data-mobile-step="3"] .guide-line{pointer-events:none}
