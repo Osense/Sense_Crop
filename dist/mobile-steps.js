@@ -1,0 +1,76 @@
+// Keep the existing controls and their handlers; steps only change visibility.
+(() => {
+  const mobile = window.matchMedia('(max-width: 720px)');
+  let current = 1;
+  const mark = (node, steps) => { if (node) node.dataset.mobileSteps = steps; };
+  const cropSection = $('ratio').closest('.section');
+  const sections = document.querySelectorAll('aside > .section');
+  mark(sections[0], '1');
+  mark(sections[2], '4');
+  mark(cropSection, '2 3');
+  mark(cropSection.querySelector('h2'), '3');
+  mark($('cropMode').parentElement, '2 3');
+  for (const child of cropSection.children) {
+    if (child.contains($('cropMode')) || child.tagName === 'H2') continue;
+    mark(child, child.contains($('cols')) || ['grid', 'gridReset'].includes(child.id) ? '2' : '3');
+  }
+  for (const child of $('guideControls').children) {
+    mark(child, child.contains($('addVertical')) || child.id === 'guidePositions' || child === $('guideControls').firstElementChild ? '2' : '3');
+  }
+  mark(document.querySelector('.canvas-rotation'), '1');
+  mark(document.querySelector('.correction-panel'), '1');
+  mark(document.querySelector('.editor'), '1 2 3');
+  for (const selector of ['.previewhead', '#previews', '.exportbar']) mark(document.querySelector(selector), '4');
+
+  const titles = ['이미지 불러오기 · 수평 보정', '가로·세로선 정렬', '교점 중심 캡처 영역 설정', '출력 배율 설정 · 저장'];
+  const hints = ['이미지를 불러오고 기울기를 맞춰 주세요.', '가로·세로선을 그림의 중심에 맞춰 주세요.', '교점마다 만들어진 영역의 크기와 비율을 확인하세요.', '배율과 파일 형식을 정한 뒤 결과를 저장하세요.'];
+  const heading = document.createElement('div');
+  heading.className = 'mobile-step-heading';
+  heading.innerHTML = '<div><small id="mobileStepCount"></small><h1 id="mobileStepTitle" tabindex="-1"></h1><p id="mobileStepHint"></p></div><div class="mobile-step-actions"><button id="mobilePrevious">이전</button><button id="mobileNext" class="dark">다음</button></div>';
+  document.querySelector('.layout').before(heading);
+  const tabs = document.createElement('nav');
+  tabs.className = 'mobile-step-tabs';
+  tabs.setAttribute('aria-label', '이미지 편집 단계');
+  ['불러오기·보정', '선 정렬', '캡처 영역', '출력·저장'].forEach((title, i) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.innerHTML = `<span>${i + 1}</span>${title}`;
+    button.setAttribute('aria-label', `${i + 1}단계 ${titles[i]}`);
+    button.onclick = () => selectStep(i + 1, true);
+    tabs.append(button);
+  });
+  document.querySelector('main').append(tabs);
+  function selectStep(step, focus = false) {
+    if (typeof correctionBusy !== 'undefined' && correctionBusy) return;
+    if (mobile.matches && step > 1 && !img) return toast('먼저 이미지를 불러와 주세요.');
+    // Suspend drawing tools while retaining correction lines and all crop data.
+    if (step !== current && mobile.matches) {
+      cancelCorrectionStroke();
+      guideDrag = null;
+      drag = null;
+    }
+    current = step;
+    document.body.dataset.mobileStep = String(step);
+    $('mobileStepCount').textContent = `${step} / 4 단계`;
+    $('mobileStepTitle').textContent = titles[step - 1];
+    $('mobileStepHint').textContent = hints[step - 1];
+    $('mobilePrevious').disabled = step === 1;
+    $('mobileNext').hidden = step === 4;
+    [...tabs.children].forEach((button, i) => {
+      if (i + 1 === step) button.setAttribute('aria-current', 'step');
+      else button.removeAttribute('aria-current');
+    });
+    if (mobile.matches && focus) {
+      heading.scrollIntoView({block: 'start'});
+      $('mobileStepTitle').focus({preventScroll: true});
+    }
+    requestAnimationFrame(() => { if (img) fit(); });
+  }
+  // Ignore correction gestures outside the correction step, without clearing work.
+  const drawing = correctionDrawingActive;
+  correctionDrawingActive = () => drawing() && (!mobile.matches || current === 1);
+  $('mobilePrevious').onclick = () => selectStep(Math.max(1, current - 1), true);
+  $('mobileNext').onclick = () => selectStep(Math.min(4, current + 1), true);
+  mobile.addEventListener('change', () => selectStep(current));
+  selectStep(1);
+})();
