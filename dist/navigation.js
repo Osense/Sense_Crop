@@ -3,14 +3,23 @@ const rotateBar=document.createElement('div');rotateBar.className='canvas-rotati
 for(const id of ['rotateMinus','rotationNumber','rotatePlus','rotationRange','rotationReset'])rotateBar.append($(id));
 rotateBar.title='시계 방향 + / 반시계 방향 − · 회전한 이미지에 맞춰 캔버스를 확장합니다';
 document.querySelector('.toolbar').after(rotateBar);rotationControls.remove();
-const nav=document.createElement('div');nav.className='canvas-navigation';nav.innerHTML='<button id="panMode" aria-pressed="false">✥ 화면 이동</button><button id="zoomOut" aria-label="축소">−</button><output id="zoomValue">화면에 맞춤</output><button id="zoomIn" aria-label="확대">＋</button><button id="zoomFit">화면에 맞춤</button><span>두 손가락: 확대·이동 · 휠: 확대 · 휠 버튼 드래그: 이동</span>';rotateBar.after(nav);
+const nav=document.createElement('div');nav.className='canvas-navigation';nav.innerHTML='<button id="panMode" aria-pressed="false">✥ 화면 이동</button><button id="zoomOut" aria-label="축소">−</button><output id="zoomValue">화면에 맞춤</output><button id="zoomIn" aria-label="확대">＋</button><div class="zoom-fit-controls"><button id="zoomFit">화면에 맞춤</button><button id="zoomFitWidth">가로에 맞춤</button><button id="zoomFitHeight">세로에 맞춤</button></div><span>두 손가락: 확대·이동 · 휠: 확대 · 휠 버튼 드래그: 이동</span>';rotateBar.after(nav);
 let handMode=false,navGesture=null,navPointers=new Map(),firstTouchState=null;
 const customZoom=document.createElement('option');customZoom.value='custom';customZoom.textContent='사용자 배율';$('zoom').append(customZoom);
-function zoomLabel(){const s=Math.round(scale*100)+'%';$('zoomValue').textContent=s;customZoom.textContent=s}
+function zoomLabel(){const s=Math.round(scale*100)+'%';$('zoomValue').textContent=s;customZoom.textContent=s;for(const [id,mode] of [['zoomFit','fit'],['zoomFitWidth','width'],['zoomFitHeight','height']])$(id).setAttribute('aria-pressed',String($('zoom').value===mode))}
 function zoomAt(next,clientX,clientY){if(!img)return;next=Math.max(.02,Math.min(8,next));const rect=stage.getBoundingClientRect(),worldX=(clientX-rect.left)/scale,worldY=(clientY-rect.top)/scale;scale=next;stage.style.width=img.width*scale+'px';stage.style.height=img.height*scale+'px';$('zoom').value='custom';render(false);const after=stage.getBoundingClientRect();viewport.scrollLeft+=after.left+worldX*scale-clientX;viewport.scrollTop+=after.top+worldY*scale-clientY;zoomLabel()}
 function zoomCenter(factor){const r=viewport.getBoundingClientRect();zoomAt(scale*factor,r.left+viewport.clientWidth/2,r.top+viewport.clientHeight/2)}
-const baseFit=fit;window.removeEventListener('resize',baseFit);fit=function(){if($('zoom').value==='custom'&&img){stage.style.width=img.width*scale+'px';stage.style.height=img.height*scale+'px';render(false)}else baseFit();zoomLabel()};$('zoom').onchange=fit;
-$('zoomIn').onclick=()=>zoomCenter(1.25);$('zoomOut').onclick=()=>zoomCenter(.8);$('zoomFit').onclick=()=>{$('zoom').value='fit';fit()};
+for(const [value,label] of [['width','가로에 맞춤'],['height','세로에 맞춤']]){const option=document.createElement('option');option.value=value;option.textContent=label;$('zoom').append(option)}
+const baseFit=fit;window.removeEventListener('resize',baseFit);fit=function(){
+  const mode=$('zoom').value;
+  if(img&&(mode==='width'||mode==='height')){
+    const style=getComputedStyle(viewport),width=viewport.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight),height=viewport.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom);
+    scale=Math.max(.02,Math.min(8,mode==='width'?width/img.width:height/img.height));
+    stage.style.width=img.width*scale+'px';stage.style.height=img.height*scale+'px';render(false);
+  }else if(mode==='custom'&&img){stage.style.width=img.width*scale+'px';stage.style.height=img.height*scale+'px';render(false)}else baseFit();zoomLabel();
+};$('zoom').onchange=fit;
+$('zoomIn').onclick=()=>zoomCenter(1.25);$('zoomOut').onclick=()=>zoomCenter(.8);
+for(const [id,mode] of [['zoomFit','fit'],['zoomFitWidth','width'],['zoomFitHeight','height']])$(id).onclick=()=>{$('zoom').value=mode;fit();viewport.scrollLeft=viewport.scrollTop=0};
 $('panMode').onclick=()=>{handMode=!handMode;$('panMode').setAttribute('aria-pressed',String(handMode));viewport.classList.toggle('hand-mode',handMode)};
 viewport.addEventListener('wheel',e=>{if(!img)return;e.preventDefault();const delta=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?viewport.clientHeight:1);zoomAt(scale*Math.exp(-Math.max(-250,Math.min(250,delta))*.002),e.clientX,e.clientY)},{passive:false});
 function swallow(e){e.preventDefault();e.stopImmediatePropagation()}
@@ -41,4 +50,4 @@ function endNavigation(e){navPointers.delete(e.pointerId);if(!navGesture){if(!na
 viewport.addEventListener('pointerup',endNavigation,true);viewport.addEventListener('pointercancel',endNavigation,true);
 viewport.addEventListener('auxclick',e=>{if(e.button===1)e.preventDefault()});
 viewport.addEventListener('dragstart',e=>e.preventDefault());
-window.addEventListener('resize',()=>{if($('zoom').value==='fit')fit()});zoomLabel();
+window.addEventListener('resize',()=>{if(['fit','width','height'].includes($('zoom').value))fit()});zoomLabel();

@@ -1,0 +1,26 @@
+/* Compact controls without shrinking canvas drag targets. */
+button{line-height:1.25}
+#viewport{scrollbar-gutter:stable}
+body :is(.section,.toolbar,.canvas-navigation,.canvas-rotation,.correction-buttons,.exportbar,.mobile-guide-tools) button:not(.thumb),body #guideControls>.pair button,body #correctionLineList button{
+  min-height:28px;padding:5px 8px;line-height:1.25;
+}
+body .canvas-navigation button{min-width:28px}
+body .canvas-navigation{padding:5px 10px;gap:4px;flex-wrap:wrap}
+.zoom-fit-controls{display:flex;gap:4px}
+.zoom-fit-controls button{white-space:nowrap}
+.zoom-fit-controls button[aria-pressed=true]{background:#e8f1eb;border-color:#8da99a;color:#22583f}
+body .toolbar{min-height:36px;height:auto;padding:4px 10px}
+body .canvas-rotation{padding:6px 10px;gap:5px}
+body .correction-panel{padding:6px 10px}
+body #gridReset{margin-top:5px}
+@media(max-width:720px){
+  body .zoom-fit-controls{flex-basis:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+  body .canvas-navigation{gap:4px;padding:5px 8px}
+  body .canvas-navigation button{font-size:10px}
+  body .mobile-header-action{min-height:28px;padding:5px 7px}
+  body .mobile-grid-row input{min-height:28px;padding:5px 7px}
+  body .section :is(input:not([type=range]):not([type=checkbox]),select){min-height:28px;padding:5px 7px}
+  body .mobile-guide-tools{padding:7px;gap:5px}
+  body .mobile-guide-details summary{min-height:28px;padding:5px 0}
+  body .section{padding:8px 10px}
+}
