@@ -42,7 +42,41 @@ document.addEventListener('keydown',e=>{if(typeof correctionBusy!=='undefined'&&
 function save(blob,name){const a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),10000)}
 async function exportBlobs(){for(const b of boxes){const {w,h}=getOutputSize(b);checkOutputSize(w,h)}const files=[];for(let i=0;i<boxes.length;i++){toast('그림 저장 준비 중 · '+(i+1)+' / '+boxes.length);const {w,h}=getOutputSize(boxes[i]);const c=crop(boxes[i],w,h);const blob=await new Promise(resolve=>c.toBlob(resolve,'image/'+$('format').value,.95));if(!blob)throw Error('이미지 변환에 실패했어요.');const ext=blob.type==='image/png'?'png':blob.type==='image/jpeg'?'jpg':'webp';files.push({name:filename(i).replace(/\.[^.]+$/,'.'+ext),blob});c.width=1;c.height=1;await new Promise(r=>setTimeout(r,0))}return files}
 const crcTable=Uint32Array.from({length:256},(_,n)=>{for(let k=0;k<8;k++)n=n&1?0xedb88320^(n>>>1):n>>>1;return n>>>0});function crc32(data){let n=0xffffffff;for(const v of data)n=crcTable[(n^v)&255]^(n>>>8);return (n^0xffffffff)>>>0}
-async function zip(files){let offset=0;const chunks=[],central=[];for(const f of files){const data=new Uint8Array(await f.blob.arrayBuffer()),name=new TextEncoder().encode(f.name),crc=crc32(data);const head=new Uint8Array(30+name.length),v=new DataView(head.buffer);v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(6,0x800,true);v.setUint32(14,crc,true);v.setUint32(18,data.length,true);v.setUint32(22,data.length,true);v.setUint16(26,name.length,true);head.set(name,30);chunks.push(head,data);const c=new Uint8Array(46+name.length),cv=new DataView(c.buffer);cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);cv.setUint16(8,0x800,true);cv.setUint32(16,crc,true);cv.setUint32(20,data.length,true);cv.setUint32(24,data.length,true);cv.setUint16(28,name.length,true);cv.setUint32(42,offset,true);c.set(name,46);central.push(c);offset+=head.length+data.length}let len=central.reduce((a,c)=>a+c.length,0);const end=new Uint8Array(22),v=new DataView(end.buffer);v.setUint32(0,0x06054b50,true);v.setUint16(8,files.length,true);v.setUint16(10,files.length,true);v.setUint32(12,len,true);v.setUint32(16,offset,true);return new Blob([...chunks,...central,end],{type:'application/zip'})}
+function zipTimestamp(modifiedAt){
+  // Legacy ZIP readers use a timezone-free DOS date. Record Korean wall time;
+  // modern readers also receive the unambiguous UTC modification timestamp.
+  const ms=modifiedAt.getTime();
+  if(!Number.isFinite(ms))throw Error('파일 저장 시간을 확인하지 못했어요.');
+  const bounded=new Date(Math.max(Date.UTC(1979,11,31,15),Math.min(Date.UTC(2107,11,31,14,59,58),ms)));
+  const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(bounded);
+  const p=Object.fromEntries(parts.filter(p=>p.type!=='literal').map(p=>[p.type,Number(p.value)]));
+  const date=((p.year-1980)<<9)|(p.month<<5)|p.day,time=(p.hour<<11)|(p.minute<<5)|Math.floor(p.second/2);
+  const extra=new Uint8Array(9),view=new DataView(extra.buffer);
+  view.setUint16(0,0x5455,true);view.setUint16(2,5,true);extra[4]=1;
+  view.setUint32(5,Math.max(0,Math.min(0xffffffff,Math.floor(ms/1000))),true);
+  return {date,time,extra};
+}
+async function zip(files,modifiedAt=new Date()){
+  let offset=0;const chunks=[],central=[],stamp=zipTimestamp(modifiedAt);
+  for(const f of files){
+    const data=new Uint8Array(await f.blob.arrayBuffer()),name=new TextEncoder().encode(f.name),crc=crc32(data);
+    const head=new Uint8Array(30+name.length+stamp.extra.length),v=new DataView(head.buffer);
+    v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(6,0x800,true);
+    v.setUint16(10,stamp.time,true);v.setUint16(12,stamp.date,true);
+    v.setUint32(14,crc,true);v.setUint32(18,data.length,true);v.setUint32(22,data.length,true);
+    v.setUint16(26,name.length,true);v.setUint16(28,stamp.extra.length,true);
+    head.set(name,30);head.set(stamp.extra,30+name.length);chunks.push(head,data);
+    const c=new Uint8Array(46+name.length+stamp.extra.length),cv=new DataView(c.buffer);
+    cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);cv.setUint16(8,0x800,true);
+    cv.setUint16(12,stamp.time,true);cv.setUint16(14,stamp.date,true);
+    cv.setUint32(16,crc,true);cv.setUint32(20,data.length,true);cv.setUint32(24,data.length,true);
+    cv.setUint16(28,name.length,true);cv.setUint16(30,stamp.extra.length,true);cv.setUint32(42,offset,true);
+    c.set(name,46);c.set(stamp.extra,46+name.length);central.push(c);offset+=head.length+data.length;
+  }
+  const len=central.reduce((a,c)=>a+c.length,0),end=new Uint8Array(22),v=new DataView(end.buffer);
+  v.setUint32(0,0x06054b50,true);v.setUint16(8,files.length,true);v.setUint16(10,files.length,true);v.setUint32(12,len,true);v.setUint32(16,offset,true);
+  return new Blob([...chunks,...central,end],{type:'application/zip'});
+}
 async function download(isZip){if(!boxes.length)return toast('저장할 영역을 먼저 만들어 주세요.');$('zip').disabled=$('individual').disabled=true;try{const files=await exportBlobs();if(isZip)save(await zip(files),filename(0).replace(/_\d+\.[^.]+$/,'.zip'));else{for(const f of files){save(f.blob,f.name);await new Promise(r=>setTimeout(r,200))}}toast(isZip?'ZIP 파일을 저장했어요.':'개별 저장을 시작했어요. 브라우저가 요청하면 여러 파일 다운로드를 허용해 주세요.')}catch(e){toast('저장하지 못했어요. 출력 크기를 줄여 다시 시도해 주세요.');console.error(e)}finally{$('zip').disabled=$('individual').disabled=false}}$('zip').onclick=()=>download(true);$('individual').onclick=()=>download(false);
 $('outputMode').onchange=()=>{if($('outputMode').value==='custom'){const b=outputReference(),f=outputFactor();outputAnchor='w';outputCustomValue=Math.max(1,Math.round(b.w*f));$('ow').value=outputCustomValue;$('oh').value=Math.max(1,Math.round(b.h*f))}render()};
 for(const id of ['outputScale','scaleFactor'])$(id).addEventListener('input',()=>render());
