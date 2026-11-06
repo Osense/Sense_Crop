@@ -9,10 +9,28 @@
     layer.replaceChildren();
     if (!img || cropMode !== 'guide' || !boxes.length) return;
     const index = selected >= 0 ? selected : 0, b = boxes[index];
-    const vs = vertical.slice().sort((a,b)=>a-b), hs = horizontal.slice().sort((a,b)=>a-b);
-    const cx = vs[index % vs.length], cy = hs[Math.floor(index / vs.length)];
-    const center = document.createElement('span');
+    const vs = vertical.map((value,index)=>({value,index})).sort((a,b)=>a.value-b.value), hs = horizontal.map((value,index)=>({value,index})).sort((a,b)=>a.value-b.value);
+    const v=vs[index % vs.length],h=hs[Math.floor(index / vs.length)];
+    const cx = v.value, cy = h.value;
+    const center = document.createElement('button');
+    center.type='button';center.setAttribute('aria-label','영역 중심 이동 · 가로선과 세로선 함께 이동');
     center.className = 'frame-center';center.style.left = cx*scale+'px';center.style.top = cy*scale+'px';
+    center.onpointerdown=e=>{
+      if(e.button!==0||handMode||correctionDrawingActive()||correctionBusy)return;
+      e.preventDefault();e.stopPropagation();
+      resizing={id:e.pointerId,direction:'center',vi:v.index,hi:h.index,cx,cy,scale,startX:e.clientX,startY:e.clientY,auto:guideAutoSize,gw:$('gw').value,gh:$('gh').value,historyLength:history.length,vertical:[...vertical],horizontal:[...horizontal],selected};
+      snapshot();selected=index;activeGuide=null;
+      guideAutoSize=false;$('guideAutoSize').checked=false;showDimensions(b.w,b.h);syncGuideBoxes();render(false);
+      $('viewport').setPointerCapture(e.pointerId);
+    };
+    center.onkeydown=e=>{
+      const delta={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
+      if(!delta||correctionBusy)return;
+      e.preventDefault();e.stopPropagation();snapshot();
+      guideAutoSize=false;$('guideAutoSize').checked=false;showDimensions(b.w,b.h);
+      moveCenter({vi:v.index,hi:h.index,cx,cy},delta[0]*(e.shiftKey?10:1),delta[1]*(e.shiftKey?10:1));
+      rebuildPositions();render();
+    };
     layer.append(center);
     for (const [direction, name] of Object.entries(names)) {
       const handle = document.createElement('button');
@@ -43,10 +61,18 @@
       layer.append(handle);
     }
   }
+  function moveCenter(state,dx,dy){
+    vertical[state.vi]=Math.max(0,Math.min(img.width,state.cx+dx));
+    horizontal[state.hi]=Math.max(0,Math.min(img.height,state.cy+dy));
+    const sortedIndices=arr=>arr.map((value,index)=>({value,index})).sort((a,b)=>a.value-b.value).map(p=>p.index);
+    selected=sortedIndices(horizontal).indexOf(state.hi)*vertical.length+sortedIndices(vertical).indexOf(state.vi);
+    syncGuideBoxes();
+  }
   function cancelResize() {
     if (!resizing) return;
     const state=resizing;resizing=null;
     guideAutoSize=state.auto;$('guideAutoSize').checked=state.auto;
+    if(state.direction==='center'){vertical=state.vertical;horizontal=state.horizontal;selected=state.selected;rebuildPositions()}
     showDimensions(Number(state.gw),Number(state.gh));
     history.length=state.historyLength;syncGuideBoxes();render();
   }
@@ -57,6 +83,7 @@
     if (!resizing || e.pointerId!==resizing.id) return;
     e.preventDefault();e.stopImmediatePropagation();
     const s=resizing, dx=(e.clientX-s.startX)/s.scale,dy=(e.clientY-s.startY)/s.scale;
+    if(s.direction==='center'){moveCenter(s,dx,dy);render(false);return}
     let w=s.w,h=s.h;
     if(s.direction.includes('e'))w+=dx*2;
     if(s.direction.includes('w'))w-=dx*2;
@@ -69,7 +96,7 @@
   },true);
   $('viewport').addEventListener('pointerup', e => {
     if(!resizing||e.pointerId!==resizing.id)return;
-    resizing=null;e.preventDefault();e.stopImmediatePropagation();previews();
+    const movedCenter=resizing.direction==='center';resizing=null;e.preventDefault();e.stopImmediatePropagation();if(movedCenter)rebuildPositions();previews();
   },true);
   $('viewport').addEventListener('pointercancel',e=>{if(resizing&&e.pointerId===resizing.id)cancelResize()},true);
   document.addEventListener('keydown',e=>{if(e.key==='Escape')cancelResize()},true);
@@ -78,7 +105,7 @@
   // Keep numeric dimensions available; direct manipulation replaces sliders.
   $('gw').hidden=$('gh').hidden=true;
   const hint=document.createElement('p');hint.className='hint frame-resize-hint';
-  hint.textContent='가로·세로선을 드래그해 영역의 중심을 옮기세요. 흰색 테두리 손잡이는 교점을 중심으로 모든 영역의 크기를 조절합니다. 모양을 자유롭게 바꾸려면 자유 비율을 선택하세요.';
+  hint.textContent='가운데 점을 드래그하면 연결된 가로·세로선이 함께 움직입니다. 흰색 테두리 손잡이로 크기를 조절하세요. 중심을 옮기거나 크기를 바꾸면 수동 크기로 전환됩니다.';
   hint.dataset.mobileSteps='3';$('ratio').closest('.section').append(hint);
   const oldHint=$('guideControls').lastElementChild;
   if(oldHint?.classList.contains('hint'))oldHint.textContent='자동 맞춤은 이미지를 빈틈없이 나눕니다. 테두리를 드래그하면 교점을 중심으로 한 수동 크기로 전환돼요.';
