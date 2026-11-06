@@ -1,0 +1,7 @@
+#frameResizeLayer{position:absolute;inset:0;pointer-events:none;z-index:7}
+.frame-resize-handle{position:absolute;transform:translate(-50%,-50%);width:28px;height:28px;min-width:0;padding:0;border:0;background:transparent;pointer-events:auto;touch-action:none;border-radius:0}
+.frame-resize-handle::after{content:'';position:absolute;inset:7px;background:white;border:2px solid #b67728;border-radius:3px;box-shadow:0 1px 4px #0003}
+.frame-resize-handle:hover{background:transparent;border:0}.frame-resize-handle:hover::after{background:#fff0d6}
+.frame-resize-handle.n,.frame-resize-handle.s{cursor:ns-resize}.frame-resize-handle.e,.frame-resize-handle.w{cursor:ew-resize}.frame-resize-handle.nw,.frame-resize-handle.se{cursor:nwse-resize}.frame-resize-handle.ne,.frame-resize-handle.sw{cursor:nesw-resize}
+.frame-center{position:absolute;width:10px;height:10px;transform:translate(-50%,-50%);background:#cf8d37;border:2px solid white;border-radius:50%;box-shadow:0 0 0 1px #cf8d37}
+@media(max-width:720px){body:not([data-mobile-step="3"]) #frameResizeLayer{display:none}.frame-resize-handle{width:40px;height:40px}.frame-resize-handle::after{inset:12px}}

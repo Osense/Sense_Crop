@@ -23,7 +23,7 @@ viewport.addEventListener('pointerdown',e=>{if(!img)return;
     if(navPointers.size>=2){viewport.setPointerCapture(e.pointerId);beginPinch();swallow(e);return}
   }
   if(typeof correctionDrawingActive==='function'&&correctionDrawingActive()&&!handMode&&e.button!==1)return;
-  if(e.button===1||handMode||(e.pointerType==='touch'&&!e.target.closest('.box,.guide-line'))){
+  if(e.button===1||handMode||(e.pointerType==='touch'&&!e.target.closest('.box,.guide-line,.frame-resize-handle'))){
     navGesture={kind:'pan',id:e.pointerId,x:e.clientX,y:e.clientY,left:viewport.scrollLeft,top:viewport.scrollTop};viewport.setPointerCapture(e.pointerId);viewport.classList.add('panning');swallow(e);
   }
 },true);
