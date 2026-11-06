@@ -1,0 +1,41 @@
+/* The same editing steps remain active on tablets and desktop screens. */
+@media(min-width:721px){
+  body{padding-bottom:88px}
+  header{height:52px;display:grid;grid-template-columns:88px 1fr 88px;gap:12px;padding:0 24px}
+  header .brand{justify-self:center;font-size:19px}
+  header .brand b{font-size:21px}
+  header .privacy,header #help{display:none}
+  .mobile-header-action{display:block;min-height:28px;padding:5px 10px;font-size:12px;margin:0}
+  .mobile-header-action:disabled{cursor:default}
+  main{padding:14px 24px 0}
+  .intro{display:none}
+  .mobile-step-heading{display:block;margin-bottom:14px}
+  .mobile-step-heading>div{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .mobile-step-heading small{color:#61816a;font-weight:bold;font-size:11px}
+  .mobile-step-heading h1{font-size:20px;margin:0;outline:none}
+  .mobile-step-heading p{font-size:12px;color:#63766b}
+  body[data-mobile-step="1"] [data-mobile-steps]:not([data-mobile-steps~="1"]),
+  body[data-mobile-step="2"] [data-mobile-steps]:not([data-mobile-steps~="2"]),
+  body[data-mobile-step="3"] [data-mobile-steps]:not([data-mobile-steps~="3"]),
+  body[data-mobile-step="4"] [data-mobile-steps]:not([data-mobile-steps~="4"]){display:none!important}
+  body:not(.has-image)[data-mobile-step="1"] .workspace{display:none}
+  body:not(.has-image)[data-mobile-step="1"] .layout{display:block;max-width:480px;margin:36px auto}
+  body:not(.has-image)[data-mobile-step="1"] .upload{padding:42px 16px}
+  body.has-image #viewport{height:clamp(320px,calc(100svh - 310px),700px)}
+  body[data-mobile-step="1"] #guideLayer,body[data-mobile-step="1"] #boxes{visibility:hidden}
+  body[data-mobile-step="2"] .box{border-color:transparent;background:transparent}
+  body[data-mobile-step="2"] .box .num{display:none}
+  body:not([data-mobile-step="1"]) #correctionOverlay{display:none}
+  body:not([data-mobile-step="1"]) #viewport.correction-drawing,body:not([data-mobile-step="1"]) #viewport.correction-drawing *{cursor:auto!important}
+  body:not([data-mobile-step="3"]) #frameResizeLayer{display:none}
+  .toolbar #zoom{display:none}
+  .mobile-step-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:fixed;bottom:0;left:0;right:0;z-index:30;background:white;border-top:1px solid #dce5df;padding:8px max(16px,calc((100vw - 1000px)/2));gap:8px;box-shadow:0 -4px 18px #203d3010}
+  .mobile-step-tabs button{display:flex;justify-content:center;align-items:center;gap:10px;border:0;background:transparent;min-height:44px;padding:6px 12px;font-size:12px;color:#718078}
+  .mobile-step-tabs span{display:flex;align-items:center;justify-content:center;border-radius:50%;background:#eef2ef;width:25px;height:25px}
+  .mobile-step-tabs button[aria-current=step]{background:#edf5ef;color:#22583f}
+  .mobile-step-tabs button[aria-current=step] span{background:#22583f;color:white}
+  #toast{bottom:84px;z-index:40}
+  .previewhead{margin-top:0}
+  #previews{max-height:55svh}
+  footer{margin-top:20px;padding:16px 0}
+}

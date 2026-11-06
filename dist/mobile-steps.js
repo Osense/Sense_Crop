@@ -5,6 +5,8 @@
   const mark = (node, steps) => { if (node) node.dataset.mobileSteps = steps; };
   const cropSection = $('ratio').closest('.section');
   const sections = document.querySelectorAll('aside > .section');
+  cropSection.querySelector('h2 i').textContent='03';
+  sections[2].querySelector('h2 i').textContent='04';
   mark(sections[0], '1');
   mark(sections[2], '4');
   mark(cropSection, '2 3');
@@ -76,9 +78,9 @@
   mobile.addEventListener('change',arrangeControls);
   function selectStep(step, focus = false) {
     if (typeof correctionBusy !== 'undefined' && correctionBusy) return;
-    if (mobile.matches && step > 1 && !img) return toast('먼저 이미지를 불러와 주세요.');
+    if (step > 1 && !img) return toast('먼저 이미지를 불러와 주세요.');
     // Suspend drawing tools while retaining correction lines and all crop data.
-    if (step !== current && mobile.matches) {
+    if (step !== current) {
       cancelCorrectionStroke();
       guideDrag = null;
       drag = null;
@@ -94,7 +96,7 @@
       if (i + 1 === step) button.setAttribute('aria-current', 'step');
       else button.removeAttribute('aria-current');
     });
-    if (mobile.matches && focus) {
+    if (focus) {
       window.scrollTo({top:0,behavior:'instant'});
       $('mobileStepTitle').focus({preventScroll: true});
     }
@@ -102,7 +104,7 @@
   }
   // Ignore correction gestures outside the correction step, without clearing work.
   const drawing = correctionDrawingActive;
-  correctionDrawingActive = () => drawing() && (!mobile.matches || current === 1);
+  correctionDrawingActive = () => drawing() && current === 1;
   $('mobilePrevious').onclick = () => selectStep(Math.max(1, current - 1), true);
   $('mobileNext').onclick = () => selectStep(Math.min(4, current + 1), true);
   mobile.addEventListener('change', () => selectStep(current));
@@ -113,7 +115,7 @@
     $('mobileNext').disabled=current===4||!hasImage;
     if(hasImage!==hadImage){
       hadImage=hasImage;
-      if(hasImage&&mobile.matches)requestAnimationFrame(()=>fit());
+      if(hasImage)requestAnimationFrame(()=>fit());
     }
   }
   const renderBeforeEntry=render;
