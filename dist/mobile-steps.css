@@ -35,7 +35,6 @@
   .editorfoot{padding:6px 8px;font-size:10px}
   body[data-mobile-step="1"] #guideLayer,body[data-mobile-step="1"] #boxes{visibility:hidden}
   body[data-mobile-step="2"] .box{border-color:transparent;background:transparent}body[data-mobile-step="2"] .box .num{display:none}
-  body[data-mobile-step="3"] #guideLayer{pointer-events:none}body[data-mobile-step="3"] .guide-line{pointer-events:none}
   body:not([data-mobile-step="1"]) #correctionOverlay{display:none}
   body:not([data-mobile-step="1"]) #viewport.correction-drawing,body:not([data-mobile-step="1"]) #viewport.correction-drawing *{cursor:auto!important}
   .previewhead{margin-top:0}#previews{max-height:38svh;grid-template-columns:repeat(auto-fill,minmax(95px,1fr))}.exportbar{padding:14px;margin-top:12px}.exportbar>div:last-child{width:100%}.exportbar button{flex:1;min-height:44px;margin:0}

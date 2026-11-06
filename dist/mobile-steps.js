@@ -23,7 +23,7 @@
   for (const selector of ['.previewhead', '#previews', '.exportbar']) mark(document.querySelector(selector), '4');
 
   const titles = ['이미지 · 수평 보정', '가로·세로선 정렬', '캡처 영역 설정', '출력 · 저장'];
-  const hints = ['이미지를 불러오고 기울기를 맞춰 주세요.', '가로·세로선을 그림의 중심에 맞춰 주세요.', '교점마다 만들어진 영역의 크기와 비율을 확인하세요.', '배율과 파일 형식을 정한 뒤 결과를 저장하세요.'];
+  const hints = ['이미지를 불러오고 기울기를 맞춰 주세요.', '가로·세로선을 그림의 중심에 맞춰 주세요.', '가이드선으로 중심을 옮기고, 테두리 손잡이로 영역 크기를 조절하세요.', '배율과 파일 형식을 정한 뒤 결과를 저장하세요.'];
   const heading = document.createElement('div');
   heading.className = 'mobile-step-heading';
   heading.innerHTML = '<div><small id="mobileStepCount"></small><h1 id="mobileStepTitle" tabindex="-1"></h1><p id="mobileStepHint"></p></div>';

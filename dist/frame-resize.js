@@ -78,7 +78,7 @@
   // Keep numeric dimensions available; direct manipulation replaces sliders.
   $('gw').hidden=$('gh').hidden=true;
   const hint=document.createElement('p');hint.className='hint frame-resize-hint';
-  hint.textContent='영역을 선택한 뒤 흰색 테두리 손잡이를 드래그하세요. 교점을 중심으로 모든 영역의 크기가 함께 바뀝니다. 비율을 자유롭게 바꾸려면 자유 비율을 선택하세요.';
+  hint.textContent='가로·세로선을 드래그해 영역의 중심을 옮기세요. 흰색 테두리 손잡이는 교점을 중심으로 모든 영역의 크기를 조절합니다. 모양을 자유롭게 바꾸려면 자유 비율을 선택하세요.';
   hint.dataset.mobileSteps='3';$('ratio').closest('.section').append(hint);
   const oldHint=$('guideControls').lastElementChild;
   if(oldHint?.classList.contains('hint'))oldHint.textContent='자동 맞춤은 이미지를 빈틈없이 나눕니다. 테두리를 드래그하면 교점을 중심으로 한 수동 크기로 전환돼요.';
