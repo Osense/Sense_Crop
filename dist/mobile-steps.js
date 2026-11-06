@@ -22,7 +22,7 @@
   mark(document.querySelector('.editor'), '1 2 3');
   for (const selector of ['.previewhead', '#previews', '.exportbar']) mark(document.querySelector(selector), '4');
 
-  const titles = ['이미지 불러오기 · 수평 보정', '가로·세로선 정렬', '교점 중심 캡처 영역 설정', '출력 배율 설정 · 저장'];
+  const titles = ['이미지 · 수평 보정', '가로·세로선 정렬', '캡처 영역 설정', '출력 · 저장'];
   const hints = ['이미지를 불러오고 기울기를 맞춰 주세요.', '가로·세로선을 그림의 중심에 맞춰 주세요.', '교점마다 만들어진 영역의 크기와 비율을 확인하세요.', '배율과 파일 형식을 정한 뒤 결과를 저장하세요.'];
   const heading = document.createElement('div');
   heading.className = 'mobile-step-heading';
@@ -40,6 +40,34 @@
     tabs.append(button);
   });
   document.querySelector('main').append(tabs);
+
+  // Place frequently used guide controls before the canvas on phones.
+  const guideTools = document.createElement('div');
+  guideTools.className = 'mobile-guide-tools';
+  mark(guideTools, '2');
+  const gridRow = document.createElement('div');gridRow.className = 'mobile-grid-row';
+  const lineRow = document.createElement('div');lineRow.className = 'mobile-line-row';
+  guideTools.append(gridRow,lineRow);
+  document.querySelector('.layout').prepend(guideTools);
+  const details = document.createElement('details');details.className = 'mobile-guide-details';
+  mark(details, '2');
+  const summary = document.createElement('summary');summary.textContent = '선 위치 미세 조절 · 추가 설정';
+  details.append(summary);cropSection.append(details);
+  const moves = [
+    [$('cols').closest('.pair'),gridRow],[$('grid'),gridRow],
+    [$('addVertical').closest('.pair'),lineRow],
+    [$('guidePositions'),details],[$('cropMode').parentElement,details],[$('gridReset'),details]
+  ].map(([node,target])=>{
+    const anchor=document.createComment('desktop control position');node.before(anchor);
+    return {node,target,anchor};
+  });
+  function arrangeControls() {
+    for(const {node,target,anchor} of moves){
+      if(mobile.matches)target.append(node);else anchor.after(node);
+    }
+  }
+  arrangeControls();
+  mobile.addEventListener('change',arrangeControls);
   function selectStep(step, focus = false) {
     if (typeof correctionBusy !== 'undefined' && correctionBusy) return;
     if (mobile.matches && step > 1 && !img) return toast('먼저 이미지를 불러와 주세요.');
@@ -51,7 +79,7 @@
     }
     current = step;
     document.body.dataset.mobileStep = String(step);
-    $('mobileStepCount').textContent = `${step} / 4 단계`;
+    $('mobileStepCount').textContent = `${step}/4`;
     $('mobileStepTitle').textContent = titles[step - 1];
     $('mobileStepHint').textContent = hints[step - 1];
     $('mobilePrevious').disabled = step === 1;
@@ -61,7 +89,7 @@
       else button.removeAttribute('aria-current');
     });
     if (mobile.matches && focus) {
-      heading.scrollIntoView({block: 'start'});
+      window.scrollTo({top:0,behavior:'instant'});
       $('mobileStepTitle').focus({preventScroll: true});
     }
     requestAnimationFrame(() => { if (img) fit(); });

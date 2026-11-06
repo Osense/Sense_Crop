@@ -1,20 +1,28 @@
-.mobile-step-heading,.mobile-step-tabs{display:none}
+.mobile-step-heading,.mobile-step-tabs,.mobile-guide-tools,.mobile-guide-details{display:none}
 @media(max-width:720px){
   body{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
-  header{height:58px;padding:0 14px}.brand{font-size:19px}
-  main{padding:16px 12px 0}.intro{margin-bottom:16px}.intro h1,.intro p,.intro .eyebrow{display:none}.intro button{margin:0;width:100%}
+  header{height:42px;padding:0 12px}.brand{font-size:15px;gap:6px}.brand b{font-size:18px;padding:1px 5px;border-radius:5px}header button{font-size:11px;padding:6px}
+  main{padding:8px 10px 0}.intro{margin-bottom:8px}.intro h1,.intro p,.intro .eyebrow{display:none}.intro button{margin:0;width:100%;padding:8px;min-height:36px}
   body:not([data-mobile-step="1"]) .intro{display:none}
-  .mobile-step-heading{display:block;margin-bottom:14px;scroll-margin-top:12px}
-  .mobile-step-heading small{color:#61816a;font-weight:bold}.mobile-step-heading h1{font-size:20px;margin:8px 0;outline:none}.mobile-step-heading p{font-size:12px;color:#63766b}
-  .mobile-step-actions{display:flex;justify-content:space-between;margin-top:12px;gap:10px}.mobile-step-actions button{min-height:44px;min-width:80px}
+  .mobile-step-heading{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px}
+  .mobile-step-heading>div:first-child{display:flex;align-items:center;gap:6px;min-width:0}
+  .mobile-step-heading small{color:#61816a;font-weight:bold;font-size:10px;white-space:nowrap}.mobile-step-heading h1{font-size:14px;margin:0;outline:none;letter-spacing:-.5px}.mobile-step-heading p{display:none}
+  .mobile-step-actions{display:flex;gap:4px;flex-shrink:0}.mobile-step-actions button{min-height:36px;min-width:0;padding:7px 9px;font-size:11px}
   .layout{gap:12px}.section{padding:16px}.section h2{margin-bottom:12px}
   body[data-mobile-step="1"] [data-mobile-steps]:not([data-mobile-steps~="1"]),
   body[data-mobile-step="2"] [data-mobile-steps]:not([data-mobile-steps~="2"]),
   body[data-mobile-step="3"] [data-mobile-steps]:not([data-mobile-steps~="3"]),
   body[data-mobile-step="4"] [data-mobile-steps]:not([data-mobile-steps~="4"]){display:none!important}
   #guidePositions{max-height:145px;margin-top:10px}#guideControls>.hint{margin-top:0}
-  #viewport{height:clamp(240px,44svh,440px);padding:24px 28px}
-  .toolbar{height:48px}.canvas-navigation{flex-wrap:wrap}.canvas-rotation{flex-wrap:wrap}
+  #viewport{height:clamp(220px,44svh,440px);min-height:220px;padding:24px 28px}
+  .toolbar{height:40px;min-height:40px;padding:4px 8px;gap:4px}.toolbar .tools button{min-height:32px;padding:5px 8px}.toolbar #zoom{display:none}
+  .canvas-navigation{flex-wrap:nowrap;gap:4px;padding:5px 8px}.canvas-navigation span{display:none}.canvas-navigation button{min-height:36px;min-width:36px;padding:6px 8px;font-size:10px}.canvas-navigation output{min-width:38px;font-size:10px}.canvas-rotation{flex-wrap:wrap}
+  .mobile-guide-tools{display:grid;gap:6px;order:-2;width:100%;padding:10px;background:white;border:1px solid #e2e7e3;border-radius:10px}
+  .mobile-grid-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px}.mobile-grid-row .pair{gap:8px}.mobile-grid-row label{margin:0;font-size:10px}.mobile-grid-row input{margin-top:3px;padding:7px;min-height:36px}.mobile-grid-row button{min-height:36px;padding:8px;font-size:10px;width:auto;margin:0}
+  .mobile-line-row>.pair{gap:8px}.mobile-line-row button{min-height:36px;padding:7px;font-size:11px}
+  .mobile-guide-details{display:block}.mobile-guide-details summary{cursor:pointer;color:#52745d;padding:8px 0;font-size:11px;min-height:36px}.mobile-guide-details[open] summary{margin-bottom:8px}.mobile-guide-details #guidePositions{max-height:180px}
+  body[data-mobile-step="2"] #guideControls>.hint{display:none}
+  body[data-mobile-step="2"] aside .section{padding:8px 12px}
   .editorfoot{padding:10px;font-size:10px}
   body[data-mobile-step="1"] #guideLayer,body[data-mobile-step="1"] #boxes{visibility:hidden}
   body[data-mobile-step="2"] .box{border-color:transparent;background:transparent}body[data-mobile-step="2"] .box .num{display:none}
@@ -23,7 +31,7 @@
   body:not([data-mobile-step="1"]) #viewport.correction-drawing,body:not([data-mobile-step="1"]) #viewport.correction-drawing *{cursor:auto!important}
   .previewhead{margin-top:0}#previews{max-height:38svh;grid-template-columns:repeat(auto-fill,minmax(95px,1fr))}.exportbar{padding:14px;margin-top:12px}.exportbar>div:last-child{width:100%}.exportbar button{flex:1;min-height:44px;margin:0}
   .mobile-step-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:fixed;bottom:0;left:0;right:0;z-index:30;background:white;border-top:1px solid #dce5df;padding:8px 8px calc(8px + env(safe-area-inset-bottom));gap:4px;box-shadow:0 -4px 18px #203d3010}
-  .mobile-step-tabs button{border:0;background:transparent;padding:6px 2px;font-size:10px;min-height:60px;color:#718078}.mobile-step-tabs span{display:flex;align-items:center;justify-content:center;margin:0 auto 5px;border-radius:50%;background:#eef2ef;width:24px;height:24px;font-size:12px}
+  .mobile-step-tabs button{border:0;background:transparent;padding:4px 2px;font-size:10px;min-height:52px;color:#718078}.mobile-step-tabs span{display:flex;align-items:center;justify-content:center;margin:0 auto 4px;border-radius:50%;background:#eef2ef;width:22px;height:22px;font-size:11px}
   .mobile-step-tabs button[aria-current=step]{background:#edf5ef;color:#22583f}.mobile-step-tabs button[aria-current=step] span{background:#22583f;color:white}
   #toast{bottom:calc(94px + env(safe-area-inset-bottom));z-index:40}footer{margin-top:18px;padding:16px 0}
 }
